@@ -1,0 +1,715 @@
+{
+    "info": {
+        "_postman_id": "cf488133-ecc1-43f4-b452-a9b001653eae",
+        "name": "API Users - Laravel",
+        "description": "Colección para probar la API del modelo User.\n\n1. Arranca el servidor con `php artisan serve`.\n2. Ejecuta las peticiones de la carpeta **Usuarios** en orden (o con el *Collection Runner*).\n\nLa variable `base_url` apunta a `http://127.0.0.1:8000/api`. Cámbiala en la pestaña *Variables* si usas otro host o puerto.\n\nUsuarios del seeder: `ruben@example.com` y `maria@example.com`, contraseña `password123`.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Usuarios",
+            "description": "Flujo completo: listar, crear, login, actualizar y eliminar. Ejecutar en orden.",
+            "item": [
+                {
+                    "name": "get - Listar usuarios (página 1)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                                    "pm.test(\"Devuelve 10 usuarios como máximo\", function () { pm.expect(pm.response.json().data.length).to.be.at.most(10); });",
+                                    "pm.test(\"Incluye datos de paginación\", function () { pm.expect(pm.response.json().meta.per_page).to.eql(10); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        },
+                        "description": "Devuelve la paginación de los diez primeros usuarios."
+                    }
+                },
+                {
+                    "name": "get - Listar usuarios (página 2)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users?page=2",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "2"
+                                }
+                            ]
+                        },
+                        "description": "Siguiente página de la paginación."
+                    }
+                },
+                {
+                    "name": "create - Crear usuario",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });",
+                                    "pm.test(\"Devuelve el usuario creado\", function () { pm.expect(pm.response.json().data.email).to.eql(\"pepe@example.com\"); });",
+                                    "pm.test(\"No devuelve la contraseña\", function () { pm.expect(pm.response.json().data).to.not.have.property(\"password\"); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        },
+                        "description": "Crea un usuario en la base de datos.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"pepe\",\n    \"email\": \"pepe@example.com\",\n    \"password\": \"secreto123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "login - Usuario del seeder",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                                    "pm.test(\"Devuelve el usuario\", function () { pm.expect(pm.response.json().data.username).to.eql(\"ruben\"); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "login"
+                            ]
+                        },
+                        "description": "Devuelve los datos de un usuario introduciendo solo el email y la contraseña (usuario creado por el seeder).",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"ruben@example.com\",\n    \"password\": \"password123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "login - Usuario creado",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "login"
+                            ]
+                        },
+                        "description": "Login del usuario creado en la petición anterior.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"pepe@example.com\",\n    \"password\": \"secreto123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "update_username - Cambiar username",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                                    "pm.test(\"Username actualizado\", function () { pm.expect(pm.response.json().data.username).to.eql(\"pepe_actualizado\"); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/username",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "username"
+                            ]
+                        },
+                        "description": "Actualiza el username pasándole el email y la contraseña. Campo nuevo: username.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"pepe@example.com\",\n    \"password\": \"secreto123\",\n    \"username\": \"pepe_actualizado\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "update_email - Cambiar email",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                                    "pm.test(\"Email actualizado\", function () { pm.expect(pm.response.json().data.email).to.eql(\"pepe.nuevo@example.com\"); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/email",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "email"
+                            ]
+                        },
+                        "description": "Actualiza el email pasándole el email y la contraseña. Campo nuevo: new_email.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"pepe@example.com\",\n    \"password\": \"secreto123\",\n    \"new_email\": \"pepe.nuevo@example.com\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "update_password - Cambiar contraseña",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/password",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "password"
+                            ]
+                        },
+                        "description": "Actualiza la contraseña pasándole el email y la contraseña actual. Campo nuevo: new_password.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"pepe.nuevo@example.com\",\n    \"password\": \"secreto123\",\n    \"new_password\": \"nuevaClave456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "login - Con la nueva contraseña",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "login"
+                            ]
+                        },
+                        "description": "Comprueba que la nueva contraseña funciona.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"pepe.nuevo@example.com\",\n    \"password\": \"nuevaClave456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "delete - Eliminar usuario",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        },
+                        "description": "Elimina el usuario pasándole email y contraseña.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"pepe.nuevo@example.com\",\n    \"password\": \"nuevaClave456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Errores (ejemplos)",
+            "description": "Casos de error: credenciales incorrectas y validaciones.",
+            "item": [
+                {
+                    "name": "login - Contraseña incorrecta (401)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "login"
+                            ]
+                        },
+                        "description": "Credenciales incorrectas.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"ruben@example.com\",\n    \"password\": \"incorrecta\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "create - Email y username duplicados (422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 422\", function () { pm.response.to.have.status(422); });",
+                                    "pm.test(\"Devuelve los errores de validación\", function () { pm.expect(pm.response.json().errors).to.have.property(\"email\"); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        },
+                        "description": "El username y el email ya existen (usuario del seeder).",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"ruben\",\n    \"email\": \"ruben@example.com\",\n    \"password\": \"password123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "create - Datos inválidos (422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 422\", function () { pm.response.to.have.status(422); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        },
+                        "description": "Validación: username obligatorio, email válido y contraseña de 8 caracteres como mínimo.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"\",\n    \"email\": \"no-es-un-email\",\n    \"password\": \"123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "update_username - Contraseña incorrecta (401)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/username",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users",
+                                "username"
+                            ]
+                        },
+                        "description": "Sin credenciales correctas no se modifica nada.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"ruben@example.com\",\n    \"password\": \"incorrecta\",\n    \"username\": \"hacker\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "delete - Contraseña incorrecta (401)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        },
+                        "description": "Sin credenciales correctas no se elimina nada.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"ruben@example.com\",\n    \"password\": \"incorrecta\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://127.0.0.1:8000/api",
+            "type": "string"
+        }
+    ]
+}
